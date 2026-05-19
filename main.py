@@ -20,7 +20,6 @@ if not firebase_key_json:
 firebase_key_dict = json.loads(firebase_key_json)
 
 # Initialize Firebase Admin using dict
-cred = credentials.Certificate(firebase_key_dict)
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
