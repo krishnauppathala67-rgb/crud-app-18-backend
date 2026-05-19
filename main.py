@@ -1,3 +1,5 @@
+import os
+import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
@@ -7,7 +9,12 @@ from pydantic import BaseModel
 # ---------------------
 #   Firebase Setup
 # ---------------------
-cred = credentials.Certificate("firebase_key.json")
+firebase_credentials = os.environ.get("FIREBASE_CREDENTIALS")
+if firebase_credentials:
+    cred_dict = json.loads(firebase_credentials)
+    cred = credentials.Certificate(cred_dict)
+else:
+    raise RuntimeError("FIREBASE_CREDENTIALS environment variable is not set. Set it to the JSON contents of your Firebase service account key.")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
