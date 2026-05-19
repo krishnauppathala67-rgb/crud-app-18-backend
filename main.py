@@ -3,11 +3,24 @@ from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
 from firebase_admin import credentials, firestore
 from pydantic import BaseModel
+import os
+import json
 
 # ---------------------
-#   Firebase Setup
+#   Firebase Setup (ENV Variable Version)
 # ---------------------
-cred = credentials.Certificate("firebase_key.json")
+
+# Load Firebase key from Railway environment variable
+firebase_key_json = os.getenv("FIREBASE_KEY_JSON")
+
+if not firebase_key_json:
+    raise Exception("❌ FIREBASE_KEY_JSON not found in Railway environment variables!")
+
+# Convert the long JSON string → Python dict
+firebase_key_dict = json.loads(firebase_key_json)
+
+# Initialize Firebase Admin using dict
+cred = credentials.Certificate(firebase_key_dict)
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -22,7 +35,7 @@ app = FastAPI()
 # ---------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],         # Allow all origins (React frontend)
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,7 +54,7 @@ class Item(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Backend is running!"}
+    return {"message": "Backend is running with ENV Firebase!"}
 
 @app.post("/create")
 def create(item: Item):
