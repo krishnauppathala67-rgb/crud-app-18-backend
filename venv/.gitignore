@@ -1,5 +1,7 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
 .env
 firebase_key.json
-venv/
+*.json
+*.env
 __pycache__/
+venv/
