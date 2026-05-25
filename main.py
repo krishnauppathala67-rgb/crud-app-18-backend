@@ -11,12 +11,11 @@ import json
 # -----------------------------
 firebase_key_json = os.getenv("FIREBASE_KEY_JSON")
 
-if not firebase_key_json:
-    raise Exception("FIREBASE_KEY_JSON not found in Railway variables")
-
-firebase_key_dict = json.loads(firebase_key_json)
-
-cred = credentials.Certificate(firebase_key_dict)
+if firebase_key_json:
+    firebase_key_dict = json.loads(firebase_key_json)
+    cred = credentials.Certificate(firebase_key_dict)
+else:
+    cred = credentials.Certificate("firebase_key.json")
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
@@ -30,6 +29,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
     "https://crud-app-18-frontend-react.vercel.app",
 ]
 
@@ -41,16 +41,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# -----------------------------
-# Model
-# -----------------------------
 class Student(BaseModel):
     name: str
     age: int
 
-# -----------------------------
-# Routes
-# -----------------------------
 @app.get("/")
 def home():
     return {"message": "Backend Working!"}
