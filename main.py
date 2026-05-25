@@ -3,14 +3,29 @@ from fastapi.middleware.cors import CORSMiddleware
 import firebase_admin
 from firebase_admin import credentials, firestore
 from pydantic import BaseModel
+import os
+import json
 
-cred = credentials.Certificate("firebase_key.json")
-firebase_admin.initialize_app(cred)
+# -----------------------------
+# Firebase Setup
+# -----------------------------
+firebase_key_json = os.getenv("FIREBASE_KEY_JSON")
+
+if not firebase_key_json:
+    raise Exception("FIREBASE_KEY_JSON not found")
+
+firebase_key_dict = json.loads(firebase_key_json)
+
+
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-app = FastAPI()
 
-from fastapi.middleware.cors import CORSMiddleware
+# -----------------------------
+# FastAPI App
+# -----------------------------
+app = FastAPI()
 
 origins = [
     "http://localhost:5173",
@@ -19,16 +34,22 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# -----------------------------
+# Model
+# -----------------------------
 class Student(BaseModel):
     name: str
     age: int
 
+# -----------------------------
+# Routes
+# -----------------------------
 @app.get("/")
 def home():
     return {"message": "Backend Working!"}
