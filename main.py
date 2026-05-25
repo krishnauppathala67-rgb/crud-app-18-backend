@@ -12,10 +12,11 @@ import json
 firebase_key_json = os.getenv("FIREBASE_KEY_JSON")
 
 if not firebase_key_json:
-    raise Exception("FIREBASE_KEY_JSON not found")
+    raise Exception("FIREBASE_KEY_JSON not found in Railway variables")
 
 firebase_key_dict = json.loads(firebase_key_json)
 
+cred = credentials.Certificate(firebase_key_dict)
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
