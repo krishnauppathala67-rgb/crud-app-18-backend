@@ -3,3 +3,4 @@ firebase_key.json
 venv/
 __pycache__/
 *.pyc
+railpack-plan.json
