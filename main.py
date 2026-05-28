@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, HTTPException,  Header
 from fastapi.middleware.cors import CORSMiddleware
 
 import firebase_admin
@@ -62,7 +62,7 @@ class Student(BaseModel):
 class EmailRequest(BaseModel):
     email: str
 
-
+from pydantic import BaseModel
 class OTPVerifyRequest(BaseModel):
     email: str
     otp: str
@@ -135,24 +135,29 @@ def send_otp(data: EmailRequest):
 
 @app.post("/verify-otp")
 def verify_otp(data: OTPVerifyRequest):
+
     saved_otp = otp_store.get(data.email)
 
-    if saved_otp == data.otp:
-        del otp_store[data.email]
-        return {"message": "OTP verified successfully"}   
-    
-        raise HTTPException(status_code=400, detail="Invalid OTP")   )
+    # Check if OTP exists
+    if not saved_otp:
+        raise HTTPException(
+            status_code=400,
+            detail="OTP not found"
+        )
 
-    if saved_otp != request.otp:
+    # Check if OTP is invalid
+    if saved_otp != data.otp:
         raise HTTPException(
             status_code=400,
             detail="Invalid OTP"
         )
 
-    del otp_store[request.email]
+    # Remove OTP after successful verification
+    del otp_store[data.email]
 
-    return {"message": "OTP verified successfully"}
-
+    return {
+        "message": "OTP verified successfully"
+    }
 
 @app.post("/create")
 def create_student(
